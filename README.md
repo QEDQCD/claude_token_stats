@@ -196,3 +196,9 @@ claude-token-stats/
 - 日志只包含 token 计数、模型名、session id、UTC 时间戳，**不含任何提示词内容、也不含 API key**。
 - 安装脚本会备份并最小化改动 `settings.json`，不会打印任何密钥。
 - `token_usage.jsonl` 是你的个人用量数据，请勿提交到公开仓库。
+
+---
+
+## 实测备注
+
+- 用本工具实测：**火山（Volcano）的 coding plan 实际额度，只有官网宣称（6000 次 / 5 小时）的三分之一左右**。可自行核对。
