@@ -102,9 +102,6 @@ python3 ~/.claude/token_stats_by_period.py
 
 # 简版总计 + 按模型
 python3 ~/.claude/token_stats.py
-
-# GitHub 贡献墙式热力图（按天 token 深浅方块）
-python3 ~/.claude/token_stats_by_period.py --by day --since 2026-07-01 --heatmap
 ```
 
 ### 参数
@@ -117,7 +114,6 @@ python3 ~/.claude/token_stats_by_period.py --by day --since 2026-07-01 --heatmap
 | `--until YYYY-MM-DD` | 结束日期（含） | 无 |
 | `--session ID` | 只统计某 session | 无 |
 | `--model NAME` | 只统计某模型 | 无 |
-| `--heatmap` | 额外输出按天 token 热力图 | 关 |
 
 ### 输出示例
 
@@ -129,30 +125,6 @@ python3 ~/.claude/token_stats_by_period.py --by day --since 2026-07-01 --heatmap
 2026-07-02    849 次    3,314,970    503,777       0   86,258,319   90,077,066
 ------------------------------------------------------------------------------
 合计        4,831 次  103,699,955  4,177,097       0  408,966,914  516,843,966
-```
-
-### 热力图（GitHub 贡献墙风格）
-
-加 `--heatmap` 会在表格后追加一幅按天的日历方块：列是周、行是周一到周日，
-每天一个方块，**当天 token 越多，方块越高（`· ▂ ▄ ▆ █`）、颜色也越亮（绿色梯度）**，
-5 档，附「少→多」图例，和 GitHub 首页的贡献墙一个意思。空档表示那天没有记录。
-
-> **靠字符高度分档，不依赖颜色**：在只有 8 色甚至无色的终端里（如 MobaXterm + tmux
-> `TERM=screen`，`tput colors` 只有 8），256 色深浅绿会糊成一片灰；用递增高度的方块
-> `· ▂ ▄ ▆ █` 就能一眼看出多少。脚本会自动探测终端色深（256 / 8 / 无色）择优上色。
-
-```
-# 按天 token 热力图（合计 tokens · GitHub 贡献墙风格）
-     6月
-一     █
-二     ▄
-三   ▂ █
-四   ▆ ▄
-五   ▆
-六   ▂
-日   ▂
-
-少 · ▂ ▄ ▆ █ 多
 ```
 
 ---
