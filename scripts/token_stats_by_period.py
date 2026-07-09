@@ -14,6 +14,7 @@
 import argparse
 import json
 import os
+import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 
@@ -82,9 +83,31 @@ def disp_width(s):
     return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in str(s))
 
 
-# GitHub 贡献墙风格：颜色 + 字符密度双通道，终端不支持 256 色也能靠字形分辨深浅。
-_HEAT_COLORS = [240, 34, 40, 46, 118]  # 灰 → 越来越亮的绿
-_HEAT_GLYPHS = ["·", "░", "▒", "▓", "█"]  # 空 → 越来越实心
+# GitHub 贡献墙风格：字符高度 + 颜色双通道。
+# 高度递增的方块（· ▂ ▄ ▆ █）即使在只有 8 色/无色的终端（如 tmux TERM=screen）
+# 也能靠“填充高度”清晰区分档位，不依赖 256 色。
+_HEAT_GLYPHS = ["·", "▂", "▄", "▆", "█"]  # 空 → 越来越高
+# 颜色：优先 256 色亮绿梯度；若终端只有 8 色，降级到基础色（见 _color_mode）。
+_HEAT_256 = [240, 34, 40, 46, 118]
+_HEAT_8 = [90, 32, 32, 92, 92]  # 灰、绿、绿、亮绿、亮绿（8/16 色可用）
+
+
+def _color_mode():
+    """返回 '256' / '8' / 'none'：探测终端色深。"""
+    if not sys.stdout.isatty():
+        return "none"
+    if os.environ.get("NO_COLOR"):
+        return "none"
+    term = os.environ.get("TERM", "")
+    ct = os.environ.get("COLORTERM", "")
+    if "256" in term or ct in ("truecolor", "24bit"):
+        return "256"
+    if term and term != "dumb":
+        return "8"
+    return "none"
+
+
+_COLOR_MODE = _color_mode()
 
 
 def _heat_level(v, thresholds):
@@ -98,7 +121,12 @@ def _heat_level(v, thresholds):
 
 
 def _paint(level):
-    return f"\033[1;38;5;{_HEAT_COLORS[level]}m{_HEAT_GLYPHS[level]}\033[0m"
+    g = _HEAT_GLYPHS[level]
+    if _COLOR_MODE == "256":
+        return f"\033[1;38;5;{_HEAT_256[level]}m{g}\033[0m"
+    if _COLOR_MODE == "8":
+        return f"\033[1;{_HEAT_8[level]}m{g}\033[0m"
+    return g
 
 
 def render_heatmap(day_totals, value_key="total"):
@@ -167,7 +195,7 @@ def render_heatmap(day_totals, value_key="total"):
         lines.append(f"{weekday_labels[row]}   " + "".join(cells).rstrip())
 
     # 图例
-    legend = "少 " + "".join(_paint(i) + " " for i in range(len(_HEAT_COLORS))) + "多"
+    legend = "少 " + "".join(_paint(i) + " " for i in range(len(_HEAT_GLYPHS))) + "多"
     lines.append("")
     lines.append(legend)
     return "\n".join(lines)
