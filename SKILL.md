@@ -81,7 +81,7 @@ python3 ~/.claude/token_stats.py
 - `--tz {local,utc}`（默认 `local`，把 UTC 时间戳转本地时区再分桶）
 - `--since / --until YYYY-MM-DD`（含端点，按分桶时区的日期比较）
 - `--session ID` / `--model NAME`
-- `--heatmap`：额外输出 GitHub 贡献墙式的按天 token 热力图（绿色方块深浅表示当天 token 合计多少，5 档梯度 + 图例）。
+- `--heatmap`：额外输出 GitHub 贡献墙式的按天 token 热力图（当天 token 越多，方块越亮越实心 `· ░ ▒ ▓ █`，颜色+字符密度双通道，5 档 + 图例）。
 
 ## 时区要点（常见疑问）
 

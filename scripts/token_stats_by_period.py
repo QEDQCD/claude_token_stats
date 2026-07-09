@@ -82,23 +82,23 @@ def disp_width(s):
     return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in str(s))
 
 
-# GitHub 贡献墙风格的绿色梯度（0=无数据，4=最深）。用 256 色 ANSI。
-_HEAT_COLORS = [238, 22, 28, 34, 46]  # 灰、深绿 → 亮绿
-_HEAT_BLOCK = "■"
+# GitHub 贡献墙风格：颜色 + 字符密度双通道，终端不支持 256 色也能靠字形分辨深浅。
+_HEAT_COLORS = [240, 34, 40, 46, 118]  # 灰 → 越来越亮的绿
+_HEAT_GLYPHS = ["·", "░", "▒", "▓", "█"]  # 空 → 越来越实心
 
 
 def _heat_level(v, thresholds):
-    """按分档阈值把数值映射到 0..(len(_HEAT_COLORS)-1)。"""
+    """按分档阈值把数值映射到 0..(len(_HEAT_GLYPHS)-1)。"""
     if v <= 0:
         return 0
     for i, t in enumerate(thresholds):
         if v <= t:
-            return min(i + 1, len(_HEAT_COLORS) - 1)
-    return len(_HEAT_COLORS) - 1
+            return min(i + 1, len(_HEAT_GLYPHS) - 1)
+    return len(_HEAT_GLYPHS) - 1
 
 
 def _paint(level):
-    return f"\033[38;5;{_HEAT_COLORS[level]}m{_HEAT_BLOCK}\033[0m"
+    return f"\033[1;38;5;{_HEAT_COLORS[level]}m{_HEAT_GLYPHS[level]}\033[0m"
 
 
 def render_heatmap(day_totals, value_key="total"):
