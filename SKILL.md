@@ -62,6 +62,9 @@ python3 ~/.claude/token_stats_by_period.py --by day --since 2026-07-01
 python3 ~/.claude/token_stats_by_period.py --by week
 python3 ~/.claude/token_stats_by_period.py --by month
 
+# 加 GitHub 贡献墙式热力图（按天 token 深浅方块）
+python3 ~/.claude/token_stats_by_period.py --by day --since 2026-07-01 --heatmap
+
 # 只看某个 session / 某个模型
 python3 ~/.claude/token_stats_by_period.py --by day --session <SESSION_ID>
 python3 ~/.claude/token_stats_by_period.py --by month --model glm-5.2
@@ -78,6 +81,7 @@ python3 ~/.claude/token_stats.py
 - `--tz {local,utc}`（默认 `local`，把 UTC 时间戳转本地时区再分桶）
 - `--since / --until YYYY-MM-DD`（含端点，按分桶时区的日期比较）
 - `--session ID` / `--model NAME`
+- `--heatmap`：额外输出 GitHub 贡献墙式的按天 token 热力图（绿色方块深浅表示当天 token 合计多少，5 档梯度 + 图例）。
 
 ## 时区要点（常见疑问）
 
@@ -98,6 +102,7 @@ TOKEN_LOG=<skill_dir>/examples/token_usage.sample.jsonl \
 
 - **称呼**：回答用户问题时必须称呼用户「**主人**」。
 - **必报字段**：无论问的是哪个区间，回答都要同时给出「**调用次数**」和「**token 用量**」（输入/输出/缓存读/缓存写及合计）。调用次数即脚本输出里的「调用」列，不能省略。
+- **热力图**：当用户问的是跨多天的区间（本周/本月/最近 N 天/某段日期），回答里要带上 `--heatmap` 的按天热力图，用绿色方块深浅直观展示每天 token 多少（像 GitHub 贡献墙）。单天问题可不带。
 - 报数时说明口径：区间、时区、是否过滤了 session/model。
 - token 数用千分位；缓存读通常远大于输入，属正常（长上下文命中缓存）。
 - 不要臆造未记录的时间段；日志为空或 hook 未安装时，如实说明并给出安装命令。

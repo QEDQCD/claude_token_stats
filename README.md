@@ -102,6 +102,9 @@ python3 ~/.claude/token_stats_by_period.py
 
 # 简版总计 + 按模型
 python3 ~/.claude/token_stats.py
+
+# GitHub 贡献墙式热力图（按天 token 深浅方块）
+python3 ~/.claude/token_stats_by_period.py --by day --since 2026-07-01 --heatmap
 ```
 
 ### 参数
@@ -114,6 +117,7 @@ python3 ~/.claude/token_stats.py
 | `--until YYYY-MM-DD` | 结束日期（含） | 无 |
 | `--session ID` | 只统计某 session | 无 |
 | `--model NAME` | 只统计某模型 | 无 |
+| `--heatmap` | 额外输出按天 token 热力图 | 关 |
 
 ### 输出示例
 
@@ -126,6 +130,28 @@ python3 ~/.claude/token_stats.py
 ------------------------------------------------------------------------------
 合计        4,831 次  103,699,955  4,177,097       0  408,966,914  516,843,966
 ```
+
+### 热力图（GitHub 贡献墙风格）
+
+加 `--heatmap` 会在表格后追加一幅按天的绿色方块日历：列是周、行是周一到周日，
+每天一个方块，**颜色越深/越亮表示当天 token 合计越多**（5 档梯度，附「少→多」图例），
+和 GitHub 首页的贡献墙一个意思。空档表示那天没有记录。
+
+```
+# 按天 token 热力图（合计 tokens · GitHub 贡献墙风格）
+     6月 7月
+一     ■ ■
+二     ■ ■
+三     ■ ■
+四     ■ ■
+五   ■ ■
+六   ■ ■
+日     ■
+
+少 ■ ■ ■ ■ ■ 多
+```
+
+（终端里方块是绿色深浅的，Markdown 里显示为普通方块。）
 
 ---
 

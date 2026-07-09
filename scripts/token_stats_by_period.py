@@ -82,6 +82,97 @@ def disp_width(s):
     return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in str(s))
 
 
+# GitHub 贡献墙风格的绿色梯度（0=无数据，4=最深）。用 256 色 ANSI。
+_HEAT_COLORS = [238, 22, 28, 34, 46]  # 灰、深绿 → 亮绿
+_HEAT_BLOCK = "■"
+
+
+def _heat_level(v, thresholds):
+    """按分档阈值把数值映射到 0..(len(_HEAT_COLORS)-1)。"""
+    if v <= 0:
+        return 0
+    for i, t in enumerate(thresholds):
+        if v <= t:
+            return min(i + 1, len(_HEAT_COLORS) - 1)
+    return len(_HEAT_COLORS) - 1
+
+
+def _paint(level):
+    return f"\033[38;5;{_HEAT_COLORS[level]}m{_HEAT_BLOCK}\033[0m"
+
+
+def render_heatmap(day_totals, value_key="total"):
+    """把 {YYYY-MM-DD: agg} 渲染成 GitHub 贡献墙式日历（列=周，行=周一..周日）。"""
+    from datetime import date, timedelta
+
+    days = sorted(day_totals)
+    if not days:
+        return "无数据。"
+    start = date.fromisoformat(days[0])
+    end = date.fromisoformat(days[-1])
+    # 对齐到起始周的周一
+    grid_start = start - timedelta(days=start.weekday())
+
+    vals = sorted(day_totals[d][value_key] for d in days if day_totals[d][value_key] > 0)
+    # 4 个分位阈值 → 5 档
+    if vals:
+        qs = [vals[min(len(vals) - 1, int(len(vals) * q))] for q in (0.25, 0.5, 0.75, 0.9)]
+        thresholds = sorted(set(qs)) or [vals[-1]]
+    else:
+        thresholds = [1]
+
+    # 逐列（周）构建
+    weeks = []
+    cur = grid_start
+    while cur <= end:
+        col = []
+        for _ in range(7):
+            key = cur.isoformat()
+            if start <= cur <= end and key in day_totals:
+                col.append((cur, _heat_level(day_totals[key][value_key], thresholds)))
+            else:
+                col.append((cur, -1))  # 空档（范围外或无数据）
+            cur += timedelta(days=1)
+        weeks.append(col)
+
+    weekday_labels = ["一", "二", "三", "四", "五", "六", "日"]
+    lines = []
+    # 月份标注行：在每个月第一次出现的周列上方标月份
+    month_row = [" "] * len(weeks)
+    seen_month = None
+    for wi, col in enumerate(weeks):
+        d0 = col[0][0]
+        if d0.month != seen_month:
+            seen_month = d0.month
+            month_row[wi] = f"{d0.month:>2}月"
+    # 每列宽 2（方块+空格），月标签占位对齐
+    mlbl = "     "  # 行首留给周标签
+    mline = mlbl
+    wi = 0
+    while wi < len(weeks):
+        tag = month_row[wi].strip()
+        if tag:
+            mline += pad(tag, 4, "<")
+            wi += 2
+        else:
+            mline += "  "
+            wi += 1
+    lines.append(mline.rstrip())
+
+    for row in range(7):
+        cells = []
+        for col in weeks:
+            _, lvl = col[row]
+            cells.append("  " if lvl < 0 else _paint(lvl) + " ")
+        lines.append(f"{weekday_labels[row]}   " + "".join(cells).rstrip())
+
+    # 图例
+    legend = "少 " + "".join(_paint(i) + " " for i in range(len(_HEAT_COLORS))) + "多"
+    lines.append("")
+    lines.append(legend)
+    return "\n".join(lines)
+
+
 def pad(s, width, align=">"):
     """按显示宽度补空格对齐（left/right），修正中文双宽导致的错位。"""
     s = str(s)
@@ -101,6 +192,8 @@ def main():
     ap.add_argument("--since", help="YYYY-MM-DD（含）")
     ap.add_argument("--until", help="YYYY-MM-DD（含）")
     ap.add_argument("--tz", choices=["utc", "local"], default="local")
+    ap.add_argument("--heatmap", action="store_true",
+                    help="额外输出 GitHub 贡献墙式的按天 token 热力图")
     args = ap.parse_args()
 
     if not os.path.exists(LOG):
@@ -172,6 +265,20 @@ def main():
             print(fmt_row(r, widths, aligns))
         print(sep)
     print(fmt_row(all_rows[-1], widths, aligns))
+
+    if args.heatmap:
+        day_totals = defaultdict(new_agg)
+        for r in rows:
+            d = r["_dt"].strftime("%Y-%m-%d")
+            agg = day_totals[d]
+            agg["n"] += 1
+            for key, _ in FIELDS:
+                v = r.get(key) or 0
+                agg[key] += v
+                agg["total"] += v
+        print()
+        print("# 按天 token 热力图（合计 tokens · GitHub 贡献墙风格）")
+        print(render_heatmap(day_totals, "total"))
 
 
 if __name__ == "__main__":
