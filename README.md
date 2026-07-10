@@ -60,7 +60,7 @@ Token 用量报告  ·  2026-07-10 10:21 CST
 | 项目 | 说明 |
 |---|---|
 | **操作系统** | **Linux 或 macOS**（依赖 `~/.claude`、`~/.codex` 等 Unix 路径与符号链接；**不支持 Windows**） |
-| **Python** | 3.8+（脚本均为 `python3` 标准库，无第三方依赖） |
+| **Python** | 3.7+（脚本均为 `python3` 标准库，无第三方依赖；用到 `datetime.fromisoformat`） |
 | **Claude 统计** | 需已安装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code)（**可选**，与 Codex 二选一或兼有） |
 | **Codex 统计** | 需已安装 [Codex CLI](https://github.com/openai/codex) 且有过会话（**可选**，与 Claude 二选一或兼有） |
 | **PATH** | `token-report`、`codex-token-stats` 安装在 `~/.local/bin/`，需该目录在 PATH 中（见下方说明） |
@@ -72,7 +72,7 @@ macOS 与 Linux 安装步骤相同；macOS 用户若命令找不到，在 `~/.zs
 
 把下面整段复制给你的 Agent（Claude Code / Cursor / Codex 均可）：
 
-> 请先阅读 https://github.com/QEDQCD/claude_token_stats 的 README.md「系统要求」，确认本机满足（Linux/macOS、Python 3.8+、已装 Claude Code 和/或 Codex CLI、~/.local/bin 在 PATH）；不满足则先告知我缺什么。满足后：克隆到 `~/.claude/skills/claude-token-stats`（用 Cursor 再复制到 `~/.cursor/skills/claude-token-stats`），运行 `python3 ~/.claude/skills/claude-token-stats/scripts/install.py`，验证 `token-report` 与 `codex-token-stats --by day` 能正常输出；命令找不到则帮我把 `~/.local/bin` 加入 PATH。
+> 请先阅读 https://github.com/QEDQCD/claude_token_stats 的 README.md「系统要求」，确认本机满足（Linux/macOS、Python 3.7+、已装 Claude Code 和/或 Codex CLI、~/.local/bin 在 PATH）；不满足则先告知我缺什么。满足后：克隆到 `~/.claude/skills/claude-token-stats`（用 Cursor 再复制到 `~/.cursor/skills/claude-token-stats`），运行 `python3 ~/.claude/skills/claude-token-stats/scripts/install.py`，验证 `token-report` 与 `codex-token-stats --by day` 能正常输出；命令找不到则帮我把 `~/.local/bin` 加入 PATH。
 
 ### 手动安装
 
