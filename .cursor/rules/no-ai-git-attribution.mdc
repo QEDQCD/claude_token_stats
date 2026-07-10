@@ -1,0 +1,29 @@
+---
+description: 禁止 Git 提交中出现 Claude/Codex/Cursor 等 AI 工具署名或贡献者
+alwaysApply: true
+---
+
+# Git 提交：禁止 AI 署名
+
+GitHub 提交信息**不得**包含任何 AI 工具的署名、共同作者或贡献者标记。
+
+## 禁止项
+
+- 不得在 commit message 中添加 `Co-authored-by:` 指向 AI 工具
+- 禁止的署名示例：
+  - `Co-authored-by: Cursor <cursoragent@cursor.com>`
+  - `Co-authored-by: Claude ...`
+  - `Co-authored-by: Codex ...`
+  - 任何 Claude / Codex / Cursor / Copilot / agent 相关 co-author 或贡献者标记
+
+## 提交前检查
+
+执行 `git commit`、`git amend` 或创建 PR 前：
+
+1. 确认 commit message 无上述 `Co-authored-by` 行
+2. 确认 `~/.cursor/cli-config.json` 中 `attribution.attributeCommitsToAgent` 与 `attributePRsToAgent` 均为 `false`
+3. 若历史提交已含 AI 署名，用 `git rebase` 清除后 `git push --force-with-lease`
+
+## 适用范围
+
+所有 git commit、amend、rebase、cherry-pick 及 PR 创建操作。
