@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from codex_log import FIELDS as CODEX_FIELDS, summarize as codex_summarize
+from codex_log import SESSIONS_DIR, summarize as codex_summarize
 
 CLAUDE_LOG = os.path.expanduser(
     os.environ.get("TOKEN_LOG", "~/.claude/token_usage.jsonl")
@@ -151,10 +151,19 @@ def main():
     print("本地 CLI 无 token 日志，请查看: https://cursor.com/settings → Usage")
 
     if args.detail:
-        section("Claude Code · 本月按天")
-        run_script(CLAUDE_STATS, ["--by", "day", "--since", month_start])
-        section("Codex · 本月按天")
-        run_script(CODEX_STATS, ["--by", "day", "--since", month_start])
+        if os.path.exists(CLAUDE_LOG):
+            section("Claude Code · 本月按天")
+            run_script(CLAUDE_STATS, ["--by", "day", "--since", month_start])
+        else:
+            section("Claude Code · 本月按天")
+            print(f"暂无日志: {CLAUDE_LOG}")
+
+        if os.path.isdir(SESSIONS_DIR):
+            section("Codex · 本月按天")
+            run_script(CODEX_STATS, ["--by", "day", "--since", month_start])
+        else:
+            section("Codex · 本月按天")
+            print(f"暂无 Codex 会话目录: {SESSIONS_DIR}")
 
     print()
 

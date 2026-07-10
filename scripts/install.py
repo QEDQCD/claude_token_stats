@@ -94,27 +94,38 @@ def install_bin_links():
         print(f"✓ 已链接 {link} → {target}")
 
 
-def install():
+def install(register_claude_hook=True):
     install_scripts()
     install_bin_links()
 
-    settings = load_settings()
-    if stop_has_hook(settings):
-        print("✓ Stop hook 已存在，跳过注册。")
+    if register_claude_hook:
+        settings = load_settings()
+        if stop_has_hook(settings):
+            print("✓ Stop hook 已存在，跳过注册。")
+        else:
+            hooks = settings.setdefault("hooks", {})
+            stop = hooks.setdefault("Stop", [])
+            stop.append({
+                "hooks": [{"type": "command", "command": HOOK_CMD, "timeout": 30}]
+            })
+            save_settings(settings)
+            print(f"✓ 已在 {SETTINGS} 注册 Stop hook（原文件备份为 settings.json.bak）")
     else:
-        hooks = settings.setdefault("hooks", {})
-        stop = hooks.setdefault("Stop", [])
-        stop.append({
-            "hooks": [{"type": "command", "command": HOOK_CMD, "timeout": 30}]
-        })
-        save_settings(settings)
-        print(f"✓ 已在 {SETTINGS} 注册 Stop hook（原文件备份为 settings.json.bak）")
+        print("· 跳过 Claude Stop hook（--codex-only 模式）。")
 
     print("\n完成。查看用量：")
     print("  token-report              # Claude + Codex 汇总")
     print("  token-report --detail     # 含本月按天明细")
+    print("  codex-token-stats --by day")
     print(f"  python3 {os.path.join(CLAUDE_DIR, 'token_stats_by_period.py')} --by day")
     print(f"  python3 {os.path.join(CLAUDE_DIR, 'codex_token_stats_by_period.py')} --by day")
+
+    path_dirs = os.environ.get("PATH", "").split(os.pathsep)
+    if LOCAL_BIN not in path_dirs:
+        print(f"\n! 提示：{LOCAL_BIN} 不在 PATH 中，直接运行 token-report / codex-token-stats 可能报 command not found。")
+        print(f"  可执行: export PATH=\"{LOCAL_BIN}:$PATH\"")
+        print("  或写入 ~/.bashrc / ~/.zshrc 永久生效。")
+        print(f"  也可直接用: python3 {os.path.join(CLAUDE_DIR, 'token_report.py')}")
 
 
 def uninstall():
@@ -143,11 +154,16 @@ def uninstall():
 def main():
     ap = argparse.ArgumentParser(description="安装/卸载 claude-token-stats")
     ap.add_argument("--uninstall", action="store_true", help="移除 Stop hook（保留脚本与日志）")
+    ap.add_argument(
+        "--codex-only",
+        action="store_true",
+        help="仅安装统计脚本与命令行入口，不注册 Claude Stop hook（适合只装 Codex CLI 的用户）",
+    )
     args = ap.parse_args()
     if args.uninstall:
         uninstall()
     else:
-        install()
+        install(register_claude_hook=not args.codex_only)
 
 
 if __name__ == "__main__":
