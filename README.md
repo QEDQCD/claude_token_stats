@@ -147,6 +147,14 @@ python3 ~/.claude/skills/claude-token-stats/scripts/install.py --uninstall
 
 只移除 Stop hook，**保留**已产生的日志与脚本。
 
+若需一并删除 `~/.claude/` 统计脚本与 `~/.local/bin` 命令链接：
+
+```bash
+python3 ~/.claude/skills/claude-token-stats/scripts/install.py --uninstall --purge
+```
+
+`token_usage.jsonl` 始终保留。
+
 ### 只装了一个 CLI 时的兼容性
 
 本工具**不要求** Claude 与 Codex 同时安装。缺少某一侧数据时，脚本**不会报错退出**，
