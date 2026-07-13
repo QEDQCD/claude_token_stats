@@ -38,10 +38,12 @@ metadata:
 | `scripts/codex_token_stats.py` | Codex 快速总计 |
 | `scripts/codex_token_stats_by_period.py` | Codex 按 天/周/月 统计 |
 | `scripts/token_report.py` | 统一报告：今日/本月/全部（Claude + Codex + Cursor 提示） |
+| `scripts/tokens_detail.py` | `tokens-detail` 命令入口（等同 `token-report --detail`） |
 | `scripts/install.py` | 幂等安装/卸载 |
 
 安装后还会在 `~/.local/bin/` 创建：
-- `token-report` → 统一报告（`--detail` 含本月按天明细，等同 `tokens-detail` 别名）
+- `token-report` → 统一报告
+- `tokens-detail` → 含本月按天明细（等同 `token-report --detail`）
 - `codex-token-stats` → Codex 按周期统计
 
 ## 首次安装（仅一次）

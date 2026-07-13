@@ -1,0 +1,5 @@
+# 保证脚本在 Linux/macOS 上 shebang 可执行（避免 Windows CRLF 导致 command not found）
+*.py text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.jsonl text eol=lf

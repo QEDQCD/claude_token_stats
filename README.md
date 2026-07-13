@@ -86,7 +86,7 @@ python3 ~/.claude/skills/claude-token-stats/scripts/install.py
 | 步骤 | 内容 |
 |---|---|
 | 1 | 复制全部统计脚本到 `~/.claude/` |
-| 2 | 在 `~/.local/bin/` 创建 **`token-report`**、**`codex-token-stats`** 符号链接 |
+| 2 | 在 `~/.local/bin/` 创建 **`token-report`**、**`tokens-detail`**、**`codex-token-stats`** 符号链接 |
 | 3 | 在 `~/.claude/settings.json` 注册 Claude Stop hook |
 | 4 | 备份 `settings.json` → `settings.json.bak` |
 
@@ -94,7 +94,7 @@ python3 ~/.claude/skills/claude-token-stats/scripts/install.py
 
 ```bash
 token-report                  # Claude + Codex 汇总
-token-report --detail         # 含本月按天明细
+tokens-detail                 # 含本月按天明细（等同 token-report --detail）
 codex-token-stats --by day    # 仅 Codex 按天
 codex-token-stats             # Codex 总计
 ```
@@ -194,7 +194,7 @@ codex-token-stats     → 「暂无 Codex 会话目录: ...」
 
 ```bash
 token-report                  # 今日 + 本月 + 全部
-token-report --detail         # 含本月按天明细（bash 别名 tokens-detail）
+tokens-detail                 # 含本月按天明细（等同 token-report --detail）
 ```
 
 ### Claude Code
@@ -269,7 +269,8 @@ claude-token-stats/
 │   ├── codex_log.py                    # Codex 解析模块
 │   ├── codex_token_stats.py            # Codex 总计
 │   ├── codex_token_stats_by_period.py  # Codex 按周期
-│   └── token_report.py                 # 统一报告
+│   ├── token_report.py                 # 统一报告
+│   └── tokens_detail.py                # tokens-detail 入口
 └── examples/
     └── token_usage.sample.jsonl
 ```

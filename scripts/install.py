@@ -9,7 +9,7 @@
 做了什么：
   1. 复制统计脚本到 ~/.claude/（Claude + Codex + 统一报告）
   2. 在 ~/.claude/settings.json 的 hooks.Stop 里注册 log_token_usage.py
-  3. 在 ~/.local/bin/ 创建 token-report / codex-token-stats 符号链接
+  3. 在 ~/.local/bin/ 创建 token-report / tokens-detail / codex-token-stats 符号链接
   4. 备份改动前的 settings.json 到 settings.json.bak
 
 不会碰 token_usage.jsonl（你的真实用量数据），也不会打印任何密钥。
@@ -36,12 +36,22 @@ SCRIPTS = [
     "codex_token_stats.py",
     "codex_token_stats_by_period.py",
     "token_report.py",
+    "tokens_detail.py",
 ]
 
 BIN_LINKS = {
     "token-report": "token_report.py",
+    "tokens-detail": "tokens_detail.py",
     "codex-token-stats": "codex_token_stats_by_period.py",
 }
+
+
+def read_script_bytes(path):
+    with open(path, "rb") as fh:
+        data = fh.read()
+    if b"\r" in data:
+        data = data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return data
 
 
 def is_our_hook(command):
@@ -122,7 +132,9 @@ def install_scripts():
     for name in SCRIPTS:
         src = os.path.join(HERE, name)
         dst = os.path.join(CLAUDE_DIR, name)
-        shutil.copy2(src, dst)
+        data = read_script_bytes(src)
+        with open(dst, "wb") as fh:
+            fh.write(data)
         os.chmod(dst, 0o755)
         print(f"✓ 已安装 {dst}")
 
@@ -196,7 +208,7 @@ def install(register_claude_hook=True):
 
     print("\n完成。查看用量：")
     print("  token-report              # Claude + Codex 汇总")
-    print("  token-report --detail     # 含本月按天明细")
+    print("  tokens-detail             # 含本月按天明细")
     print("  codex-token-stats --by day")
     print(f"  python3 {os.path.join(CLAUDE_DIR, 'token_stats_by_period.py')} --by day")
     print(f"  python3 {os.path.join(CLAUDE_DIR, 'codex_token_stats_by_period.py')} --by day")
