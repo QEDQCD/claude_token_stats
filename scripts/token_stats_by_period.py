@@ -22,7 +22,6 @@ LOG = os.path.expanduser(os.environ.get("TOKEN_LOG", "~/.claude/token_usage.json
 FIELDS = [
     ("input_tokens", "输入"),
     ("output_tokens", "输出"),
-    ("cache_creation_input_tokens", "缓存写"),
     ("cache_read_input_tokens", "缓存读"),
 ]
 

@@ -35,13 +35,12 @@ def main():
         return sum((r.get(key) or 0) for r in rows)
 
     ti, to = s("input_tokens"), s("output_tokens")
-    cr, cw = s("cache_read_input_tokens"), s("cache_creation_input_tokens")
+    cr = s("cache_read_input_tokens")
 
     print(f"调用次数:   {len(rows):,}")
     print(f"输入 tokens: {ti:,}")
     print(f"输出 tokens: {to:,}")
     print(f"缓存读取:   {cr:,}")
-    print(f"缓存写入:   {cw:,}")
     if PRICE_IN or PRICE_OUT:
         print(f"预估费用:   {ti * PRICE_IN + to * PRICE_OUT:.4f}")
 

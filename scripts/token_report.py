@@ -24,7 +24,6 @@ CODEX_STATS = os.path.join(CLAUDE_DIR, "codex_token_stats_by_period.py")
 CLAUDE_FIELDS = [
     "input_tokens",
     "output_tokens",
-    "cache_creation_input_tokens",
     "cache_read_input_tokens",
 ]
 
