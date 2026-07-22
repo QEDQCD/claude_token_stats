@@ -95,6 +95,7 @@ Codex 参数：`--by {day,week,month,all}`、`--tz {local,utc}`、`--since/--unt
 
 Codex 会话 JSONL 中 `event_msg.token_count` 的 `total_token_usage` 是**会话累计值**。
 统计脚本对相邻事件做 delta，得到每次调用的增量。字段：输入、缓存读、输出（无 cache_creation）。
+缓存命中率 = 缓存读 / (输入 + 缓存读)，以百分比展示。
 
 环境变量：
 - `TOKEN_LOG` — Claude 日志路径（默认 `~/.claude/token_usage.jsonl`）
@@ -113,8 +114,9 @@ Cursor IDE 用量需在网页 https://cursor.com/settings → Usage 查看。统
 
 - **称呼**：回答用户问题时必须称呼用户「**主人**」。
 - **必报字段**：无论问的是哪个区间，回答都要同时给出「**调用次数**」和「**token 用量**」。
-  - Claude：输入/输出/缓存读及合计
-  - Codex：输入/缓存读/输出及合计
+  - Claude：输入/输出/缓存读/缓存命中率及合计
+  - Codex：输入/缓存读/缓存命中率/输出及合计
+  - 缓存命中率 = 缓存读 / (输入 + 缓存读)，以百分比展示（如 `95.4%`）；分母为 0 时报 `-`
 - 用户问「全部工具用量」时，分别报 Claude 和 Codex，并说明 Cursor 需网页查看。
 - 报数时说明口径：区间、时区、数据来源。
 - token 数用千分位；缓存读通常远大于输入，属正常。

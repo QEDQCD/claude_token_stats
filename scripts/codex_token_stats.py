@@ -23,6 +23,12 @@ def main():
     print(f"调用次数:   {agg['n']:,}")
     for key, label in FIELDS:
         print(f"{label} tokens: {agg[key]:,}")
+        if key == "cached_input_tokens":
+            cr = agg[key] or 0
+            inp = agg.get("input_tokens", 0) or 0
+            denom = cr + inp
+            hit = f"{100.0 * cr / denom:.1f}%" if denom > 0 else "-"
+            print(f"缓存命中率: {hit}")
     print(f"合计:       {agg['total']:,}")
 
 

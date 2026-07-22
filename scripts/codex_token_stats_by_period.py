@@ -18,6 +18,16 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from codex_log import FIELDS, SESSIONS_DIR, iter_deltas
 
 
+def fmt_cache_hit_rate(agg):
+    """缓存命中率 = 缓存读 / (输入 + 缓存读)。"""
+    cr = agg.get("cached_input_tokens", 0) or 0
+    inp = agg.get("input_tokens", 0) or 0
+    denom = cr + inp
+    if denom <= 0:
+        return "-"
+    return f"{100.0 * cr / denom:.1f}%"
+
+
 def bucket_key(dt, by):
     if by == "day":
         return dt.strftime("%Y-%m-%d")
@@ -102,7 +112,10 @@ def main():
             add_delta(agg, r)
 
     columns = [("区间", None, "<"), ("调用", lambda a: f"{a['n']:,} 次", ">")]
-    columns += [(name, (lambda k: lambda a: f"{a[k]:,}")(key), ">") for key, name in FIELDS]
+    for key, name in FIELDS:
+        columns.append((name, (lambda k: lambda a: f"{a[k]:,}")(key), ">"))
+        if key == "cached_input_tokens":
+            columns.append(("命中率", fmt_cache_hit_rate, ">"))
     columns += [("合计", lambda a: f"{a['total']:,}", ">")]
 
     headers = [c[0] for c in columns]

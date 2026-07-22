@@ -36,11 +36,14 @@ def main():
 
     ti, to = s("input_tokens"), s("output_tokens")
     cr = s("cache_read_input_tokens")
+    denom = ti + cr
+    hit = f"{100.0 * cr / denom:.1f}%" if denom > 0 else "-"
 
     print(f"调用次数:   {len(rows):,}")
     print(f"输入 tokens: {ti:,}")
     print(f"输出 tokens: {to:,}")
     print(f"缓存读取:   {cr:,}")
+    print(f"缓存命中率: {hit}")
     if PRICE_IN or PRICE_OUT:
         print(f"预估费用:   {ti * PRICE_IN + to * PRICE_OUT:.4f}")
 

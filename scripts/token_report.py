@@ -92,6 +92,14 @@ def claude_summary(since=None, until=None):
     return agg
 
 
+def fmt_cache_hit_rate(cache_read, input_tokens):
+    """缓存命中率 = 缓存读 / (输入 + 缓存读)。"""
+    denom = (cache_read or 0) + (input_tokens or 0)
+    if denom <= 0:
+        return "-"
+    return f"{100.0 * (cache_read or 0) / denom:.1f}%"
+
+
 def print_compact(label, agg, kind):
     if agg is None:
         print(f"{label}: 暂无数据")
@@ -100,18 +108,26 @@ def print_compact(label, agg, kind):
         print(f"{label}: 无记录")
         return
     if kind == "claude":
+        hit = fmt_cache_hit_rate(
+            agg["cache_read_input_tokens"], agg["input_tokens"]
+        )
         print(
             f"{label}: {agg['n']:,} 次 | "
             f"输入 {agg['input_tokens']:,} | "
             f"输出 {agg['output_tokens']:,} | "
             f"缓存读 {agg['cache_read_input_tokens']:,} | "
+            f"命中率 {hit} | "
             f"合计 {agg['total']:,}"
         )
     else:
+        hit = fmt_cache_hit_rate(
+            agg["cached_input_tokens"], agg["input_tokens"]
+        )
         print(
             f"{label}: {agg['n']:,} 次 | "
             f"输入 {agg['input_tokens']:,} | "
             f"缓存读 {agg['cached_input_tokens']:,} | "
+            f"命中率 {hit} | "
             f"输出 {agg['output_tokens']:,} | "
             f"合计 {agg['total']:,}"
         )

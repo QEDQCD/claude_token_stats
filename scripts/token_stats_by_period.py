@@ -26,6 +26,16 @@ FIELDS = [
 ]
 
 
+def fmt_cache_hit_rate(agg):
+    """缓存命中率 = 缓存读 / (输入 + 缓存读)。"""
+    cr = agg.get("cache_read_input_tokens", 0) or 0
+    inp = agg.get("input_tokens", 0) or 0
+    denom = cr + inp
+    if denom <= 0:
+        return "-"
+    return f"{100.0 * cr / denom:.1f}%"
+
+
 def parse_ts(ts, use_local):
     """把 ISO8601 (UTC, 带 Z) 解析成 datetime；use_local=True 转本地时区。"""
     if not ts:
@@ -130,7 +140,10 @@ def main():
 
     # 每列：(表头, 取值函数, 对齐)。所有行走同一套列定义，避免表头/数据错位。
     columns = [("区间", None, "<"), ("调用", lambda a: f"{a['n']:,} 次", ">")]
-    columns += [(name, (lambda k: lambda a: f"{a[k]:,}")(key), ">") for key, name in FIELDS]
+    for key, name in FIELDS:
+        columns.append((name, (lambda k: lambda a: f"{a[k]:,}")(key), ">"))
+        if key == "cache_read_input_tokens":
+            columns.append(("命中率", fmt_cache_hit_rate, ">"))
     columns += [("合计", lambda a: f"{a['total']:,}", ">")]
 
     headers = [c[0] for c in columns]
